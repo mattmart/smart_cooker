@@ -1,4 +1,5 @@
 import plotly.plotly as py
+import argparse
 import pdb
 import psycopg2
 from plotly.graph_objs import *
@@ -38,7 +39,7 @@ class CookerPlotter:
         )
 
         fig = Figure(data=data, layout=layout)
-        unique_url = py.plot(fig, filename = 'basic-line',auto_open=False)
+        unique_url = py.plot(fig, filename = uuid,auto_open=False)
         return unique_url
 
     def upload_to_plotly(self,uuid):
@@ -47,7 +48,11 @@ class CookerPlotter:
 
 def main():
     plotter = CookerPlotter()
-    print plotter.upload_to_plotly('3df70992-e324-4eb8-9354-afe1f7ac5744')
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--uuid", help="uuid to fetch from the database and graph", type=str)
+    _myargs = parser.parse_args()
+    
+    print plotter.upload_to_plotly(_myargs.uuid)
 
 if __name__ == "__main__":
     main()
