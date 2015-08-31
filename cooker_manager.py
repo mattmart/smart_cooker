@@ -10,7 +10,7 @@ import cooker_logging
 
 class CookerManager:
     
-    def __init__(self, name, gtemp, gtime, enable_logging = True):
+    def __init__(self, name, gtemp, gtime, description, enable_logging = True):
         '''
         initializes cooker manager - can be instantiated multiple times
         with the same cooker name(id), should probably be locked somehow
@@ -19,6 +19,7 @@ class CookerManager:
         self._goal_temp = gtemp
         self._remaining_time = gtime
         self._enable_logging = enable_logging
+        self._description = description
         self._started_cooking = False
         self._finished_cooking = False
         self._probe_id = "28-00000545b919"
@@ -70,7 +71,7 @@ class CookerManager:
         '''
         sets up database logging for this cooker. if logging is not enabled, noop
         '''
-        self._logger = cooker_logging.getLogger(__name__,self._cooker_name, self._enable_logging)
+        self._logger = cooker_logging.getLogger(__name__,self._cooker_name, self._description, self._enable_logging)
     
     def _finish_logging(self):
         '''

@@ -5,17 +5,17 @@ import logging.handlers
 
 from cooker_plotting import CookerPlotter
 
-def getLogger(name, probe_id, enable_logging):
-    return CookingLogger(name, probe_id, enable_logging)
+def getLogger(logger_name, probe_name, description, enable_logging):
+    return CookingLogger(logger_name, probe_name, description, enable_logging)
 
 #maybe should be composition, but w/e
 class CookingLogger (logging.Logger):
-    def __init__(self, name, probe_id, enable_logging):    
+    def __init__(self, name, probe_name, description, enable_logging):    
         self._logger = logging.getLogger(name)
         self._logger.setLevel(logging.DEBUG)
         self._enable_logging = enable_logging
         if enable_logging:
-            cooker_handler = CookerDBHandler(probe_id)
+            cooker_handler = CookerDBHandler(probe_name, description)
             self._db_handler = cooker_handler
             cooker_handler.setLevel(logging.INFO)
             self._logger.addHandler(cooker_handler)
@@ -33,12 +33,14 @@ class CookingLogger (logging.Logger):
 
 
 class CookerDBHandler(logging.Handler):
-    def __init__(self, name):
+    def __init__(self, name, description):
         logging.Handler.__init__(self)
         self._uuid = str(uuid.uuid4())
         self._conn=psycopg2.connect("dbname=cooker user=cooker")
         self._curr = self._conn.cursor()
+        self._curr.execute("insert into t_cooking_descriptions (uuid, cooking_description) values (%s,%s)", (self._uuid, description))
         self._curr.execute("select sc_id from t_slowcookers where cooker_name = '%s'" % name)
+        self._conn.commit()
         self._probe_id = self._curr.fetchone()
     
     def emit(self, record):
