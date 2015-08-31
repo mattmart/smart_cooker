@@ -29,6 +29,18 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
+-- Name: t_cooking_descriptions; Type: TABLE; Schema: public; Owner: cooker; Tablespace: 
+--
+
+CREATE TABLE t_cooking_descriptions (
+    uuid character varying(255) NOT NULL,
+    cooking_description text
+);
+
+
+ALTER TABLE public.t_cooking_descriptions OWNER TO cooker;
+
+--
 -- Name: t_sc_timing; Type: TABLE; Schema: public; Owner: cooker; Tablespace: 
 --
 
@@ -59,6 +71,14 @@ CREATE TABLE t_slowcookers (
 ALTER TABLE public.t_slowcookers OWNER TO cooker;
 
 --
+-- Name: t_cooking_descriptions_pkey; Type: CONSTRAINT; Schema: public; Owner: cooker; Tablespace: 
+--
+
+ALTER TABLE ONLY t_cooking_descriptions
+    ADD CONSTRAINT t_cooking_descriptions_pkey PRIMARY KEY (uuid);
+
+
+--
 -- Name: t_sc_timing_primary_key; Type: CONSTRAINT; Schema: public; Owner: cooker; Tablespace: 
 --
 
@@ -72,6 +92,14 @@ ALTER TABLE ONLY t_sc_timing
 
 ALTER TABLE ONLY t_slowcookers
     ADD CONSTRAINT t_slowcookers_pkey PRIMARY KEY (sc_id);
+
+
+--
+-- Name: has_well_formed_uuid; Type: FK CONSTRAINT; Schema: public; Owner: cooker
+--
+
+ALTER TABLE ONLY t_sc_timing
+    ADD CONSTRAINT has_well_formed_uuid FOREIGN KEY (uuid) REFERENCES t_cooking_descriptions(uuid) MATCH FULL;
 
 
 --
