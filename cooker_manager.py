@@ -58,12 +58,12 @@ class CookerManager:
 
         if self._goal_temp >= curr_temp:
             #wtf
-            for i in range(1, 6):
+            for i in range(5):
                 strogonanoff_sender.send_command(pin,1,1,True)
             self._logger.info("turning on slow cooker", extra)
         else:
             #wtf
-            for i in range(1, 6):
+            for i in range(5):
                 strogonanoff_sender.send_command(pin,1,1,False)
             self._logger.info("turning off slow cooker", extra)
     
@@ -78,12 +78,17 @@ class CookerManager:
         '''
         self._logger.finish_logging()
     
+    def set_goal_temp(self, gtemp):
+        '''
+        '''
+        self._goal_temp = gtemp
+    
     def _turn_off_perm(self):
         '''
         meant to be used  to turn off the cooker permanently
         '''
         #turn the cooker off
-        self._goal_temp = 0.1
+        self.set_goal_temp(0.1)
         for i in range(1, 5):
             self._set_cooker_state()
 
@@ -111,6 +116,7 @@ class CookerManager:
             def _handler(signum, frame):
                 print "received graceful kill signal! Turning off cooker permanently..."
                 cooker._turn_off_perm()
+                self._finish_logging()
                 signal.signal(signum, signal.SIG_DFL)
                 os.kill(os.getpid(), signum) # Rethrow signal, this time without catching it
             return _handler
