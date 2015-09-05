@@ -7,6 +7,7 @@ from rpi_strogonanoff import strogonanoff_sender
 from rpi_strogonanoff import WiringPin as WPin
 import cooker_thermometer as therm
 import cooker_logging
+import cooker_state
 
 class CookerManager:
     
@@ -15,8 +16,7 @@ class CookerManager:
         initializes cooker manager - can be instantiated multiple times
         with the same cooker name(id), should probably be locked somehow
         '''
-        self._cooker_name = name
-        self._goal_temp = gtemp
+        self._cooker_state = cooker_state.CookerState(name, gtemp, gtime)
         self._remaining_time = gtime
         self._enable_logging = enable_logging
         self._description = description
@@ -30,7 +30,7 @@ class CookerManager:
         '''
         if not self._started_cooking:
             raise ValueError('have not started cooking yet!')
-        return self._remaining_time <= 0
+        return self._cooker_state.get_remaining_time() <= 0
 
     def is_finished_cooking(self):
         '''
@@ -45,7 +45,7 @@ class CookerManager:
         '''
         return therm.read_temp(self._probe_id)
     
-    def _set_cooker_state(self):
+    def _set_slowcooker_state(self):
         '''
         one time only tries to read the temperature from the probe
         and weigh it against the goal temperature, then turn off or 
@@ -54,9 +54,9 @@ class CookerManager:
         pin=WPin.WiringPin(0).export()
 
         curr_temp = self.get_current_temp()
-        extra = { 'curr_temp': curr_temp, 'goal_temp' : self._goal_temp }
+        extra = { 'curr_temp': curr_temp, 'goal_temp' : self._cooker_state.get_goal_temp() }
 
-        if self._goal_temp >= curr_temp:
+        if self._cooker_state.get_goal_temp() >= curr_temp:
             #wtf
             for i in range(5):
                 strogonanoff_sender.send_command(pin,1,1,True)
@@ -71,7 +71,7 @@ class CookerManager:
         '''
         sets up database logging for this cooker. if logging is not enabled, noop
         '''
-        self._logger = cooker_logging.getLogger(__name__,self._cooker_name, self._description, self._enable_logging)
+        self._logger = cooker_logging.getLogger(__name__,self._cooker_state.get_name(), self._description, self._enable_logging)
     
     def _finish_logging(self):
         '''
@@ -81,7 +81,7 @@ class CookerManager:
     def set_goal_temp(self, gtemp):
         '''
         '''
-        self._goal_temp = gtemp
+        self._cooker_state.set_goal_temp(gtemp)
     
     def _turn_off_perm(self):
         '''
@@ -90,7 +90,7 @@ class CookerManager:
         #turn the cooker off
         self.set_goal_temp(0.1)
         for i in range(1, 5):
-            self._set_cooker_state()
+            self._set_slowcooker_state()
 
     def _cook(self):
         '''
@@ -100,8 +100,8 @@ class CookerManager:
         self._start_logging()
         while not self._is_finished_controlling():
             time.sleep(1)
-            self._remaining_time = self._remaining_time - 1
-            self._set_cooker_state()
+            self._cooker_state.set_remaining_time(self._cooker_state.get_remaining_time() - 1)
+            self._set_slowcooker_state()
         self._turn_off_perm()
         self._finish_logging()
         self._finished_cooking = True
