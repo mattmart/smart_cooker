@@ -20,13 +20,13 @@ def main():
     else:
         _time_in_seconds = 3600
 
-    cooker = cooker_manager.CookerManager(_myargs.cooker_name,_myargs.goal_temp,_time_in_seconds, _myargs.description, not _myargs.skip_logging)
+    cooker = cooker_manager.CookerManager(_myargs.cooker_name,_myargs.description, not _myargs.skip_logging)
 
-    cooker.start_async_cooking()
+    cooker.start_async_cooking(_myargs.goal_temp,_time_in_seconds)
     
     while not cooker.is_finished_cooking():
         time.sleep(5)
-        print "cooker not finished! remaining time is:" + str(cooker._remaining_time) + " at temperature: " + str(cooker.get_current_temp())
+        print "cooker not finished! remaining time is:" + str(cooker.get_remaining_time()) + " at temperature: " + str(cooker.get_current_temp())
 
 if __name__ == "__main__":
     main()
