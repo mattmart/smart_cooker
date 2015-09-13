@@ -10,7 +10,7 @@ import cooker_logging
 import cooker_state
 
 class CookerManager:
-    
+    running_cookers = []   
     def __init__(self, name, description, enable_logging = True):
         '''
         initializes cooker manager - can be instantiated multiple times
@@ -23,13 +23,13 @@ class CookerManager:
         self._finished_cooking = False
         self._probe_id = "28-00000545b919"
 
-    def _is_finished_controlling(self, cstate):
+    def _is_finished_controlling(self):
         '''
         cheap method to check if we're done yet
         '''
         if not self._started_cooking:
             raise ValueError('have not started cooking yet!')
-        return cstate.get_remaining_time() <= 0
+        return self._cstate.get_remaining_time() <= 0
 
     def is_finished_cooking(self):
         '''
@@ -37,6 +37,16 @@ class CookerManager:
         '''
         return self._finished_cooking
 
+    def get_description(self):
+        '''
+        '''
+        return self._description
+
+    def get_name(self):
+        '''
+        '''
+        return self._name
+ 
     def get_current_temp(self):
         '''
         fetches the current temperature associated with this
@@ -44,7 +54,7 @@ class CookerManager:
         '''
         return therm.read_temp(self._probe_id)
     
-    def _set_slowcooker_state(self, cstate):
+    def _set_slowcooker_state(self):
         '''
         one time only tries to read the temperature from the probe
         and weigh it against the goal temperature, then turn off or 
@@ -53,9 +63,9 @@ class CookerManager:
         pin=WPin.WiringPin(0).export()
 
         curr_temp = self.get_current_temp()
-        extra = { 'curr_temp': curr_temp, 'goal_temp' : cstate.get_goal_temp() }
+        extra = { 'curr_temp': curr_temp, 'goal_temp' : self._cstate.get_goal_temp() }
 
-        if cstate.get_goal_temp() >= curr_temp:
+        if self._cstate.get_goal_temp() >= curr_temp:
             #wtf
             for i in range(5):
                 strogonanoff_sender.send_command(pin,1,1,True)
@@ -80,21 +90,29 @@ class CookerManager:
     def set_goal_temp(self, gtemp):
         '''
         '''
-        self._cooker_state.set_goal_temp(gtemp)
+        self._cstate.set_goal_temp(gtemp)
+
+    def get_goal_temp(self):
+        '''
+        '''
+        return self._cstate.get_goal_temp()
+    
     
     def _turn_off_perm(self):
         '''
         meant to be used  to turn off the cooker permanently
         '''
         #turn the cooker off
-        cstate = cooker_state.CookerState.init_from_name(self._name)
-        cstate.set_goal_temp(0.1)
+        self._cstate = cooker_state.CookerState.init_from_name(self._name)
+        self._cstate.set_goal_temp(0.1)
         for i in range(1, 5):
-            self._set_slowcooker_state(cstate)
+            self._set_slowcooker_state()
 
     def get_remaining_time(self):
-        cstate = cooker_state.CookerState.init_from_name(self._name)
-        return cstate.get_remaining_time()
+        return self._cstate.get_remaining_time()
+
+    def set_remaining_time(self, time_in_seconds):
+        return self._cstate.set_remaining_time(time_in_seconds)
     
     def _cook(self,gtemp, gtime):
         '''
@@ -102,12 +120,11 @@ class CookerManager:
         would be, then sets the state of the cooker to whatever is necessary
         '''
         self._start_logging()
-        cstate = cooker_state.CookerState(self._name,gtemp,gtime)
-        while not self._is_finished_controlling(cstate):
-            cstate = cooker_state.CookerState.init_from_name(self._name)
+        self._cstate = cooker_state.CookerState(self._name,gtemp,gtime)
+        while not self._is_finished_controlling():
             time.sleep(1)
-            cstate.set_remaining_time(cstate.get_remaining_time() - 1)
-            self._set_slowcooker_state(cstate)
+            self._cstate.set_remaining_time(self._cstate.get_remaining_time() - 1)
+            self._set_slowcooker_state()
         self._turn_off_perm()
         self._finish_logging()
         self._finished_cooking = True
@@ -140,7 +157,7 @@ class CookerManager:
         start_sync_cooking, as those methods "do the right thing"
         depending on what you want to do
         '''
-        self._setup_kill_signals()
+        #self._setup_kill_signals()
 
         self._started_cooking = True
         thr = threading.Thread(target=self._cook, args=(gtemp,gtime))
@@ -154,4 +171,3 @@ class CookerManager:
         immediately. makes sure started thread is a daemon
         '''
         thread = self._start_cooking_helper(gtime, gtemp, True)
-

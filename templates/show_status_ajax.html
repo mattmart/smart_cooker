@@ -1,0 +1,22 @@
+{% block body %}
+  <table class=entries>
+    <tr class="header">
+      <td>Cooker Name</td>
+      <td>Current Temp </td>
+      <td>Goal Temp </td>
+      <td>Remaining Time </td>
+      <td>Description</td>
+      <td></td>
+    </tr>
+  {% for entry in entries %}
+    <tr class="alt{{ entries.index(entry) % 2 }}">
+      <td>{{ entry.get_name() }}</td>
+      <td>{{ entry.get_current_temp() }}</td>
+      <td>{{ entry.get_goal_temp() }}</td>
+      <td>{{ entry.get_remaining_time() }} </td>
+      <td>{{ entry.get_description() }} </td>
+      <td><form action ="{{ url_for('modify_cooker') }}" method=post class=modify-entry> <input type=submit value="Edit"/><input value="{{ entry.get_name() }}" name="cooker_name" hidden="hidden"/></form> </td>
+    </tr>
+  {% else %}
+  {% endfor %}
+{% endblock %}

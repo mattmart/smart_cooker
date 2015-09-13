@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+{% block body %}
+    <form action="{{ url_for('add_new_cooker') }}" method=post class=add-entry>
+      <dl>
+        <dt>Cooker Name:
+        <dd><input type=text size=30 name=cooker_name>
+        <dt>Goal Temperature:
+        <dd><input type=text size=30 name=goal_temp>
+        <dt>time in seconds:
+        <dd><input type=text size=30 name=time_in_seconds>
+        <dt>Description:
+        <dd><textarea name=description rows=5 cols=40></textarea>
+        <dd><input type=submit value=Add>
+      </dl>
+    </form>
+    <script>
+    //define a worker
+
+      var worker = new Worker(" {{ url_for('static', filename='worker.js') }}");
+      worker.addEventListener('message', function(e) {
+        document.getElementById("status_container").innerHTML = e.data
+      }, false);
+    
+    worker.postMessage("{{ url_for('status_ajax') }}"); // Send data to our worker.
+    </script>
+    <div id="status_container"> </div>
+
+{% endblock %}

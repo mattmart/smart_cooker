@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+{% block body %}
+    <form action="{{ url_for('modify_cooker') }}" method=post class=add-entry>
+      <dl>
+        <dt>Cooker Name:
+        <dt>{{ cooker.get_name() }}
+        <input value="{{ cooker.get_name() }}" name="cooker_name" hidden="hidden"/>
+        <dt>Cooker Goal Temperature:
+        <dt>{{ cooker.get_goal_temp() }}
+        <dd><input type=text size=30 name=goal_temp>
+        <dt>Cooker Remaining Time:
+        <dt>{{ cooker.get_remaining_time() }}
+        <dd><input type=text size=30 name=time_in_seconds>
+        <dt>Text:
+        <dd><textarea name=text rows=5 cols=40></textarea>
+        <dd><input type=submit value=Modify>
+      </dl>
+    </form>
+{% endblock %}
