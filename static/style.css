@@ -1,0 +1,31 @@
+table {
+  border-collapse: collapse;
+}
+
+table, th, td {
+  border: 1px solid black;
+}
+
+#status_container .header {
+  text-align: center;
+  background-color: #84aab7;
+  font-size: 1.4em;
+  border: 1px solid #84aab7;
+  padding: 8px 14px 6px 14px;
+}
+
+#status_container .alt0 {
+  text-align: center;
+  background-color: #E4F2F7;
+  font-size: 1.2em;
+  border: 1px solid #E4F2F7;
+  padding: 3px 7px 2px 7px;
+}
+
+#status_container .alt1 {
+  text-align: center;
+  background-color: #a6d5e5;
+  font-size: 1.2em;
+  border: 1px solid #a6d5e5;
+  padding: 3px 7px 2px 7px;
+}
