@@ -60,20 +60,26 @@ def get_time_from_request():
 
 @app.route('/modify_cooker', methods=['POST'])
 def modify_cooker():
+    
     goal_temp = None
     remaining_time = None
+    description = None
+    
     try:
         goal_temp = get_goal_temp_from_request()
     except ValueError:
         pass
+    
     try:
         remaining_time = get_time_from_request()
     except ValueError:
         pass
-    val = remaining_time==None
-    print "remaining time is" + str(val)
-    val = goal_temp==None
-    print "goal temp is" + str(val)
+    
+    try:
+        description = get_description_from_request()
+    except ValueError:
+        pass
+
 
     cooker_name = get_cooker_name_from_request()
     cur_cookers = cooker_manager.CookerManager.running_cookers
@@ -82,10 +88,12 @@ def modify_cooker():
         if cooker_name == c.get_name():
             cooker = c
     
-    if remaining_time or goal_temp:
+    if remaining_time or goal_temp or description:
         #gotta actually modify it - doing so now...
         if remaining_time:
             cooker.set_remaining_time(remaining_time)
+        if description:
+            cooker.set_description(description)
         if goal_temp:
             cooker.set_goal_temp(goal_temp)
         return redirect(url_for('status'))

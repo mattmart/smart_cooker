@@ -26,6 +26,10 @@ class CookingLogger (logging.Logger):
     def info(self, msg, extra = {}):
         self._logger.info(msg, extra)
     
+    def set_description(self, descript):
+        if self._enable_logging:
+            self._db_handler.set_description(descript)
+    
     def finish_logging(self):
         if self._enable_logging:
             plotter = CookerPlotter()
@@ -48,3 +52,7 @@ class CookerDBHandler(logging.Handler):
         goal_temp = record.args.get('goal_temp')
         self._curr.execute("insert into t_sc_timing (sc_id, curr_temp, target_temp, uuid) values (%s, %s, %s, %s)",(self._probe_id,curr_temp,goal_temp, self._uuid))
         self._conn.commit()
+    
+    def set_description(self, descript):
+        print "update t_cooking_descriptions set (cooking_description) = (%s) where uuid = '%s'", (descript, self._uuid)
+        self._curr.execute("update t_cooking_descriptions set (cooking_description) = (%s) where uuid = %s", (descript, self._uuid))

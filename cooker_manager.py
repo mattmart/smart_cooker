@@ -41,6 +41,13 @@ class CookerManager:
         '''
         '''
         return self._description
+    
+    def set_description(self, descript):
+        '''
+        '''
+        self._description = descript
+        if self._enable_logging:
+            self._logger.set_description(descript)
 
     def get_name(self):
         '''
