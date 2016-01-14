@@ -58,6 +58,14 @@ def get_time_from_request():
         else:
             raise ValueError("time_in_seconds wasn't a number")
 
+@app.route('/')
+@app.route('/index.html')
+def index():
+    """ Displays the index page accessible at '/'
+    """
+    return render_template('index.html')
+
+
 @app.route('/modify_cooker', methods=['POST'])
 def modify_cooker():
     
@@ -106,6 +114,7 @@ def status_ajax():
     return render_template('show_status_ajax.html',entries=cur_cookers)
 
 @app.route('/status')
+@app.route('/status.html')
 def status():
     cur_cookers = cooker_manager.CookerManager.running_cookers
     return render_template('show_status.html',entries=cur_cookers)

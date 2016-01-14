@@ -1,0 +1,11 @@
+<!doctype html>
+<title>Cooker home</title>
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+<div class=page>
+  <h1>cooker index</h1>
+  <div class=metanav>
+  </div>
+    <div class=flash>did you mean to go to the status page?</div>
+    <div class=flash><a href="{{ url_for('status')}}">here</a></div>
+  {% block body %}{% endblock %}
+</div>
