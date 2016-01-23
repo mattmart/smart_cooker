@@ -2,6 +2,8 @@
 import os
 import io
 import json
+import time
+import math
 
 class CookerState:
 
@@ -13,6 +15,7 @@ class CookerState:
         '''
         self._name = name
         self._goal_temp = goal_temp
+        self._start_time = time.time()
         self._goal_time = goal_time
         self.flush()
 
@@ -27,7 +30,8 @@ class CookerState:
         self.flush()
     
     def get_remaining_time(self):
-        return self._goal_time
+        goal_time = self._start_time + self._goal_time
+        return math.floor(goal_time - time.time())
     
     def set_remaining_time(self, gtime):
         self._goal_time = gtime

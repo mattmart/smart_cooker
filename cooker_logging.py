@@ -30,10 +30,16 @@ class CookingLogger (logging.Logger):
         if self._enable_logging:
             self._db_handler.set_description(descript)
     
-    def finish_logging(self):
+    def log(self):
         if self._enable_logging:
             plotter = CookerPlotter()
-            print plotter.upload_to_plotly(self._db_handler._uuid)
+            return plotter.upload_to_plotly(self._db_handler._uuid)
+
+    def finish_logging(self):
+        '''
+        right now just returns the log call, but can do something else. who knows?
+        '''
+        return self.log()
 
 
 class CookerDBHandler(logging.Handler):

@@ -4,8 +4,8 @@
       <td>Cooker Name</td>
       <td>Current Temp </td>
       <td>Goal Temp </td>
-      <td>Remaining Time </td>
-      <td>Description</td>
+      <td>Time Left</td>
+      <td>Plotly Link</td>
       <td></td>
     </tr>
   {% for entry in entries %}
@@ -14,7 +14,7 @@
       <td>{{ entry.get_current_temp() }}</td>
       <td>{{ entry.get_goal_temp() }}</td>
       <td>{{ entry.get_remaining_time() }} </td>
-      <td>{{ entry.get_description() }} </td>
+      <td><a href="{{ entry.get_plotly_link() }}"> {{ entry.get_description() }} </a>  </td>
       <td><form action ="{{ url_for('modify_cooker') }}" method=post class=modify-entry> <input type=submit value="Edit"/><input value="{{ entry.get_name() }}" name="cooker_name" hidden="hidden"/></form> </td>
     </tr>
   {% else %}

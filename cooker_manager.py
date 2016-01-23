@@ -22,6 +22,7 @@ class CookerManager:
         self._started_cooking = False
         self._finished_cooking = False
         self._probe_id = "28-00000545b919"
+        self._plotly_link = ""
 
     def _is_finished_controlling(self):
         '''
@@ -53,6 +54,16 @@ class CookerManager:
         '''
         '''
         return self._name
+
+    def get_plotly_link(self):
+        '''
+        '''
+        return self._plotly_link
+
+    def _set_plotly_link(self, link):
+        '''
+        '''
+        self._plotly_link = link
  
     def get_current_temp(self):
         '''
@@ -89,11 +100,16 @@ class CookerManager:
         '''
         self._logger = cooker_logging.getLogger(__name__,self._name, self._description, self._enable_logging)
     
+    def _log(self):
+        '''
+        '''
+        return self._logger.log()
+
     def _finish_logging(self):
         '''
         '''
-        self._logger.finish_logging()
-    
+        return self._logger.finish_logging()
+
     def set_goal_temp(self, gtemp):
         '''
         '''
@@ -114,6 +130,7 @@ class CookerManager:
         self._cstate.set_goal_temp(0.1)
         for i in range(1, 5):
             self._set_slowcooker_state()
+        self.running_cookers.remove(self)
 
     def get_remaining_time(self):
         return self._cstate.get_remaining_time()
@@ -130,13 +147,13 @@ class CookerManager:
         self._cstate = cooker_state.CookerState(self._name,gtemp,gtime)
         while not self._is_finished_controlling():
             time.sleep(1)
-            self._cstate.set_remaining_time(self._cstate.get_remaining_time() - 1)
+            if self._cstate.get_remaining_time()% 10 == 1 or self._cstate.get_remaining_time()% 10 == 0:
+                self._set_plotly_link(self._log())
             self._set_slowcooker_state()
         self._turn_off_perm()
         self._finish_logging()
         self._finished_cooking = True
-
-
+        
 
     def _setup_kill_signals(self):
         '''
