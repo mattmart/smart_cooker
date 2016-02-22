@@ -9,8 +9,9 @@ import cooker_thermometer as therm
 import cooker_logging
 import cooker_state
 
+running_cookers = []   
+
 class CookerManager:
-    running_cookers = []   
     def __init__(self, name, description, enable_logging = True):
         '''
         initializes cooker manager - can be instantiated multiple times
@@ -130,7 +131,7 @@ class CookerManager:
         self._cstate.set_goal_temp(0.1)
         for i in range(1, 5):
             self._set_slowcooker_state()
-        self.running_cookers.remove(self)
+        running_cookers.remove(self)
 
     def get_remaining_time(self):
         return self._cstate.get_remaining_time()

@@ -90,7 +90,7 @@ def modify_cooker():
 
 
     cooker_name = get_cooker_name_from_request()
-    cur_cookers = cooker_manager.CookerManager.running_cookers
+    cur_cookers = cooker_manager.running_cookers
     cooker = None
     for c in cur_cookers:
         if cooker_name == c.get_name():
@@ -110,13 +110,13 @@ def modify_cooker():
 
 @app.route('/status_ajax')
 def status_ajax():
-    cur_cookers = cooker_manager.CookerManager.running_cookers
+    cur_cookers = cooker_manager.running_cookers
     return render_template('show_status_ajax.html',entries=cur_cookers)
 
 @app.route('/status')
 @app.route('/status.html')
 def status():
-    cur_cookers = cooker_manager.CookerManager.running_cookers
+    cur_cookers = cooker_manager.running_cookers
     return render_template('show_status.html',entries=cur_cookers)
 
 @app.route('/add_new_cooker', methods=['POST'])
@@ -127,7 +127,7 @@ def add_new_cooker():
     time_in_seconds = get_time_from_request()
     
     #sanity check on the cooker
-    for cooker in cooker_manager.CookerManager.running_cookers:
+    for cooker in cooker_manager.running_cookers:
         if cooker.get_name() == cooker_name:
             errors.append("Cooker given is already in use!")
     
@@ -138,7 +138,7 @@ def add_new_cooker():
     cooker = cooker_manager.CookerManager(cooker_name, description, not skip_logging)
     cooker.start_async_cooking(goal_temp,time_in_seconds)
     
-    cooker_manager.CookerManager.running_cookers.append(cooker)
+    cooker_manager.running_cookers.append(cooker)
     
     return redirect(url_for('status'))
 
