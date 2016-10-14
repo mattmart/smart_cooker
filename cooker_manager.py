@@ -3,16 +3,16 @@ import time
 import os
 import signal
 
-from rpi_strogonanoff import strogonanoff_sender
-from rpi_strogonanoff import WiringPin as WPin
 import cooker_thermometer as therm
 import cooker_logging
 import cooker_state
+import cooker_strogonanoff
+import cooker_x10
 
 running_cookers = []   
 
 class CookerManager:
-    def __init__(self, name, description, enable_logging = True):
+    def __init__(self, name, description, use_x10, enable_logging = True):
         '''
         initializes cooker manager - can be instantiated multiple times
         with the same cooker name(id), should probably be locked somehow
@@ -24,6 +24,11 @@ class CookerManager:
         self._finished_cooking = False
         self._probe_id = "28-00000545b919"
         self._plotly_link = ""
+        if use_x10:
+            #testing for now
+            self._icooker = new CookerStrogonanoff()
+        else:
+            self._icooker = new CookerStrogonanoff()
 
     def _is_finished_controlling(self):
         '''
@@ -79,7 +84,6 @@ class CookerManager:
         and weigh it against the goal temperature, then turn off or 
         on the cooker. hardcoded button, gpio, and channel vals
         '''
-        pin=WPin.WiringPin(0).export()
 
         curr_temp = self.get_current_temp()
         extra = { 'curr_temp': curr_temp, 'goal_temp' : self._cstate.get_goal_temp() }
@@ -87,12 +91,12 @@ class CookerManager:
         if self._cstate.get_goal_temp() >= curr_temp:
             #wtf
             for i in range(5):
-                strogonanoff_sender.send_command(pin,1,1,True)
+                icooker.turn_on()
             self._logger.info("turning on slow cooker", extra)
         else:
             #wtf
             for i in range(5):
-                strogonanoff_sender.send_command(pin,1,1,False)
+                icooker.turn_off()
             self._logger.info("turning off slow cooker", extra)
     
     def _start_logging(self):
