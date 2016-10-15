@@ -7,8 +7,8 @@ class CookerX10:
         self._heyu_bin = "heyu"
     
     def turn_off(self):
-        call([self._heyu_bin,"fon",self._address])
+        call([self._heyu_bin,"foff",self._address])
 
     def turn_on(self):
-        call([self._heyu_bin,"foff",self._address])
+        call([self._heyu_bin,"fon",self._address])
 
