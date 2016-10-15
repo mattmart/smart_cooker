@@ -1,5 +1,4 @@
 import logging
-import psycopg2
 import uuid
 import logging.handlers
 
@@ -13,6 +12,7 @@ class CookingLogger (logging.Logger):
     def __init__(self, name, probe_name, description, enable_logging):    
         self._logger = logging.getLogger(name)
         self._logger.setLevel(logging.DEBUG)
+        enable_logging = False
         self._enable_logging = enable_logging
         if enable_logging:
             cooker_handler = CookerDBHandler(probe_name, description)
@@ -46,6 +46,7 @@ class CookerDBHandler(logging.Handler):
     def __init__(self, name, description):
         logging.Handler.__init__(self)
         self._uuid = str(uuid.uuid4())
+        import psycopg2
         self._conn=psycopg2.connect("dbname=cooker user=cooker")
         self._curr = self._conn.cursor()
         self._curr.execute("insert into t_cooking_descriptions (uuid, cooking_description) values (%s,%s)", (self._uuid, description))

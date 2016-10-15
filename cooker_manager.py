@@ -6,13 +6,12 @@ import signal
 import cooker_thermometer as therm
 import cooker_logging
 import cooker_state
-import cooker_strogonanoff
-import cooker_x10
+from cooker_x10 import CookerX10
 
 running_cookers = []   
 
 class CookerManager:
-    def __init__(self, name, description, use_x10, enable_logging = True):
+    def __init__(self, name, description,  enable_logging = True):
         '''
         initializes cooker manager - can be instantiated multiple times
         with the same cooker name(id), should probably be locked somehow
@@ -23,12 +22,14 @@ class CookerManager:
         self._started_cooking = False
         self._finished_cooking = False
         self._probe_id = "28-00000545b919"
+        self._probe_id = "28-0000054823e9"
         self._plotly_link = ""
+        use_x10 = True
         if use_x10:
             #testing for now
-            self._icooker = new CookerStrogonanoff()
+            self._icooker = CookerX10()
         else:
-            self._icooker = new CookerStrogonanoff()
+            self._icooker = CookerStrogonanoff()
 
     def _is_finished_controlling(self):
         '''
@@ -91,12 +92,12 @@ class CookerManager:
         if self._cstate.get_goal_temp() >= curr_temp:
             #wtf
             for i in range(5):
-                icooker.turn_on()
+                self._icooker.turn_on()
             self._logger.info("turning on slow cooker", extra)
         else:
             #wtf
             for i in range(5):
-                icooker.turn_off()
+                self._icooker.turn_off()
             self._logger.info("turning off slow cooker", extra)
     
     def _start_logging(self):

@@ -1,11 +1,11 @@
 import plotly.plotly as py
 import argparse
 import pdb
-import psycopg2
 from plotly.graph_objs import *
 
 class CookerPlotter:
     def _get_trace_data(self, uuid):
+        import psycopg2
         self._conn=psycopg2.connect("dbname=cooker user=cooker")
         DEC2FLOAT = psycopg2.extensions.new_type(psycopg2.extensions.DECIMAL.values,'DEC2FLOAT',
                     lambda value, curs: float(value) if value is not None else None)
